@@ -1,4 +1,9 @@
 const express = require('express');
+const mongoose = require('mongoose');
+
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('Connexion à MongoDB réussie'))
+  .catch(() => console.log('Connexion à MongoDB échouée'));
 
 const app = express();
 
@@ -10,5 +15,8 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
+
+const bookRoutes = require('./routes/book');
+app.use('/api/books', bookRoutes);
 
 module.exports = app;
