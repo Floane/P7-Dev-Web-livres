@@ -1,5 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const bookRoutes = require('./routes/book');
+const userRoutes = require('./routes/user');
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('Connexion à MongoDB réussie'))
@@ -16,7 +18,8 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
-const bookRoutes = require('./routes/book');
 app.use('/api/books', bookRoutes);
+
+app.use('/api/auth', userRoutes);
 
 module.exports = app;
