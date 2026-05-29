@@ -31,6 +31,10 @@ exports.getBestRating = (req, res, next) => {
 };
 
 exports.createBook = (req, res, next) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'Image requise' });
+  }
+
   const bookObject = JSON.parse(req.body.book);
   delete bookObject._id;
   delete bookObject._userId;
@@ -51,7 +55,7 @@ exports.createBook = (req, res, next) => {
     });
 
     book.save()
-      .then(() => res.status(201).json({ message: 'Livre enregistré' }))
+      .then(() => res.status(201).json({ message: 'Livre enregistré !' }))
       .catch(error => res.status(400).json({ error }));
   });
 };
