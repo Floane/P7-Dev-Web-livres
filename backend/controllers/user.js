@@ -14,13 +14,17 @@ exports.signup = (req, res, next) => {
         password: hash
       });
       user.save()
-        .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
+        .then(() => res.status(201).json({ message: 'Utilisateur créé' }))
         .catch(error => res.status(400).json({ error }));
     })
     .catch(error => res.status(500).json({ error }));
 };
 
 exports.login = (req, res, next) => {
+  if (!req.body.email || !req.body.password) {
+    return res.status(400).json({ error: 'Email et mot de passe requis' });
+  }
+
   User.findOne({ email: req.body.email })
     .then(user => {
       if (!user) {
