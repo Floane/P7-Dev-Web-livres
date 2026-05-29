@@ -26,14 +26,26 @@ exports.createBook = (req, res, next) => {
   const bookObject = JSON.parse(req.body.book);
   delete bookObject._id;
   delete bookObject._userId;
-  const book = new Book({
-    ...bookObject,
-    userId: req.auth.userId,
-    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+
+  const bookId = new mongoose.Types.ObjectId();
+  const extension = req.file.filename.split('.').pop();
+  const newFilename = `${bookId}.${extension}`;
+  const newPath = `images/${newFilename}`;
+
+  fs.rename(req.file.path, newPath, (err) => {
+    if (err) return res.status(500).json({ error: err });
+
+    const book = new Book({
+      ...bookObject,
+      _id: bookId,
+      userId: req.auth.userId,
+      imageUrl: `${req.protocol}://${req.get('host')}/images/${newFilename}`
+    });
+
+    book.save()
+      .then(() => res.status(201).json({ message: 'Livre enregistré' }))
+      .catch(error => res.status(400).json({ error }));
   });
-  book.save()
-    .then(() => res.status(201).json({ message: 'Livre enregistré' }))
-    .catch(error => res.status(400).json({ error }));
 };
 
 exports.modifyBook = (req, res, next) => {
