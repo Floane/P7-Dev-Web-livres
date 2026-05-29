@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Book = require('../models/Book');
 const fs = require('fs');
 
@@ -60,18 +61,24 @@ exports.modifyBook = (req, res, next) => {
 };
 
 exports.deleteBook = (req, res, next) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(404).json({ error: 'Livre non trouvé' });
+  }
   Book.findOne({ _id: req.params.id })
     .then(book => {
+      if (!book) {
+        return res.status(404).json({ error: 'Livre non trouvé' });
+      }
       if (book.userId != req.auth.userId) {
         return res.status(403).json({ message: 'Non autorisé' });
       }
       const filename = book.imageUrl.split('/images/')[1];
       fs.unlink(`images/${filename}`, () => {});
       Book.deleteOne({ _id: req.params.id })
-        .then(() => res.status(200).json({ message: 'Livre supprimé' }))
+        .then(() => res.status(200).json({ message: 'Livre supprimé !' }))
         .catch(error => res.status(400).json({ error }));
     })
-    .catch(error => res.status(400).json({ error }));
+    .catch(error => res.status(404).json({ error }));
 };
 
 exports.rateBook = (req, res, next) => {
